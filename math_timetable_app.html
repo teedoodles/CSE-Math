@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f0f13">
+<title>Maths I — Study Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0f0f13;
+  --surface:   #18181f;
+  --surface2:  #1f1f28;
+  --border:    #2a2a36;
+  --border2:   #363645;
+  --text:      #e8e8f0;
+  --muted:     #888899;
+  --faint:     #444455;
+  --purple-bg:#1e1a3a;--purple-tx:#b9aaff;--purple-acc:#7c6ef0;
+  --teal-bg:  #0d2420;--teal-tx:  #5ff5c2;--teal-acc:  #1ec98a;
+  --amber-bg: #261b08;--amber-tx: #ffc46a;--amber-acc: #e0903c;
+  --coral-bg: #271009;--coral-tx: #ffaa88;--coral-acc: #e0622e;
+  --blue-bg:  #0c1a2e;--blue-tx:  #7ac4ff;--blue-acc:  #3d8fdf;
+  --green:#1ec98a;
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100dvh;-webkit-font-smoothing:antialiased}
+.app{max-width:720px;margin:0 auto;padding:0 16px env(safe-area-inset-bottom,0)}
+.top-bar{position:sticky;top:0;z-index:100;background:rgba(15,15,19,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 16px;margin:0 -16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top-bar-left h1{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.top-bar-left p{font-size:12px;color:var(--muted);margin-top:1px}
+.top-pct{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--green);flex-shrink:0}
+.progress-wrap{padding:16px 0 0}
+.bar-track{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,#1ec98a,#5ff5c2);border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px 0 0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center}
+.stat-val{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.2}
+.units{padding:16px 0 32px;display:flex;flex-direction:column;gap:10px}
+.unit-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s}
+.unit-card.open{border-color:var(--border2)}
+.unit-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;min-height:64px}
+.unit-hd:active{background:var(--surface2)}
+.unit-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.unit-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;letter-spacing:.04em;text-transform:uppercase;border:1px solid transparent}
+.unit-info{min-width:0}
+.unit-title{font-size:14px;font-weight:600;color:var(--text);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unit-sub{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unit-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.unit-prog{font-size:12px;font-weight:500;color:var(--muted)}
+.unit-prog.full{color:var(--green)}
+.unit-mini-bar{width:48px;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.unit-mini-fill{height:100%;border-radius:2px;transition:width .4s}
+.chevron{width:20px;height:20px;color:var(--faint);transition:transform .25s cubic-bezier(.4,0,.2,1),color .2s;flex-shrink:0}
+.unit-card.open .chevron{transform:rotate(180deg);color:var(--muted)}
+.unit-body{display:none;border-top:1px solid var(--border)}
+.unit-card.open .unit-body{display:block}
+.shelf{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 16px}
+.shelf-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.shelf-links{display:flex;flex-wrap:wrap;gap:6px}
+.topic-row{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;border-bottom:1px solid var(--border)}
+.topic-row:last-child{border-bottom:none}
+.topic-row.done-row{opacity:.55}
+.check-btn{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:background .15s,border-color .15s,transform .1s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.check-btn:active{transform:scale(.88)}
+.check-btn.done{background:var(--green);border-color:var(--green)}
+.check-btn svg{opacity:0;transition:opacity .15s}
+.check-btn.done svg{opacity:1}
+.topic-content{flex:1;min-width:0}
+.topic-top{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.topic-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.4}
+.topic-name.done{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--faint)}
+.day-pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap;letter-spacing:.03em;flex-shrink:0}
+.topic-tip{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:6px}
+.vid-links{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.vid-link,.shelf-link{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--muted);text-decoration:none;background:var(--surface2);transition:color .15s,border-color .15s,background .15s;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.vid-link:hover,.shelf-link:hover{color:var(--text);background:var(--surface)}
+.yt-dot{width:7px;height:7px;background:#ff4444;border-radius:50%;flex-shrink:0}
+.footer{padding:0 0 24px;display:flex;justify-content:center}
+.reset-btn{font-size:12px;color:var(--faint);background:none;border:1px solid var(--border);border-radius:20px;padding:7px 18px;cursor:pointer;font-family:var(--font-body);transition:color .15s,border-color .15s}
+.reset-btn:hover{color:var(--muted);border-color:var(--border2)}
+.c-purple .unit-badge{background:var(--purple-bg);color:var(--purple-tx);border-color:var(--purple-acc)}
+.c-purple .unit-mini-fill{background:var(--purple-acc)}
+.c-purple .day-pill{background:var(--purple-bg);color:var(--purple-tx)}
+.c-teal .unit-badge{background:var(--teal-bg);color:var(--teal-tx);border-color:var(--teal-acc)}
+.c-teal .unit-mini-fill{background:var(--teal-acc)}
+.c-teal .day-pill{background:var(--teal-bg);color:var(--teal-tx)}
+.c-amber .unit-badge{background:var(--amber-bg);color:var(--amber-tx);border-color:var(--amber-acc)}
+.c-amber .unit-mini-fill{background:var(--amber-acc)}
+.c-amber .day-pill{background:var(--amber-bg);color:var(--amber-tx)}
+.c-coral .unit-badge{background:var(--coral-bg);color:var(--coral-tx);border-color:var(--coral-acc)}
+.c-coral .unit-mini-fill{background:var(--coral-acc)}
+.c-coral .day-pill{background:var(--coral-bg);color:var(--coral-tx)}
+.c-blue .unit-badge{background:var(--blue-bg);color:var(--blue-tx);border-color:var(--blue-acc)}
+.c-blue .unit-mini-fill{background:var(--blue-acc)}
+.c-blue .day-pill{background:var(--blue-bg);color:var(--blue-tx)}
+@media(max-width:420px){.top-bar-left h1{font-size:15px}.stats{gap:6px}.stat-val{font-size:18px}.stat{padding:10px 6px}.unit-title{font-size:13px}.unit-mini-bar{display:none}}
+@media(min-width:600px){.app{padding:0 24px env(safe-area-inset-bottom,0)}.top-bar{padding:16px 24px;margin:0 -24px}.top-bar-left h1{font-size:19px}.top-pct{font-size:26px}.stat-val{font-size:24px}.unit-title{font-size:15px}.topic-name{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <h1>Mathematics I</h1>
+      <p>B.Tech CSE · Sem 1 · 5 units · 40 days</p>
+    </div>
+    <div class="top-pct" id="top-pct">0%</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="s-days">40</div><div class="stat-lbl">study days</div></div>
+    <div class="stat"><div class="stat-val" id="s-hrs">80</div><div class="stat-lbl">total hrs</div></div>
+    <div class="stat"><div class="stat-val" id="s-done">0</div><div class="stat-lbl">done</div></div>
+    <div class="stat"><div class="stat-val" id="s-left">40</div><div class="stat-lbl">left</div></div>
+  </div>
+  <div class="units" id="units"></div>
+  <div class="footer">
+    <button class="reset-btn" onclick="resetProgress()">Reset all progress</button>
+  </div>
+</div>
+<script>
+const UNITS=[{id:'u1',title:'Differential Calculus',color:'purple',num:1,unitVideos:[{label:"Organic Chem Tutor — full Calculus 1 playlist",url:"https://www.youtube.com/playlist?list=PL0o_zxa4K1BVKErFko9je9IBZ0hXWXVtV"},{label:"3Blue1Brown — Essence of Calculus",url:"https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr"}],topics:[{name:"Rolle's Theorem & conditions",day:1,tip:"Start with the geometric picture — a horizontal tangent between equal endpoints.",videos:[{label:"Organic Chem Tutor — Rolle's & MVT",url:"https://www.youtube.com/watch?v=0jiVRRKmGoE"}]},{name:"Lagrange's & Cauchy's Mean Value Theorems",day:2,tip:"Memorise the formulas first; derive from first principles once.",videos:[{label:"Organic Chem Tutor — Rolle's & MVT",url:"https://www.youtube.com/watch?v=0jiVRRKmGoE"}]},{name:"Taylor's Theorem — Lagrange & Cauchy remainders",day:3,tip:"Focus on the Lagrange remainder — it's the most tested form.",videos:[{label:"3Blue1Brown — Taylor Series (visual)",url:"https://www.youtube.com/watch?v=3d6DsjIBzJ4"},{label:"Dr Trefor Bazett — Taylor & Maclaurin",url:"https://www.youtube.com/watch?v=LPH2lqzVikE"}]},{name:"Maclaurin's series for sin, cos, eˣ, ln(1+x)",day:4,tip:"Memorise these cold — they appear everywhere in exams.",videos:[{label:"3Blue1Brown — Taylor Series (visual)",url:"https://www.youtube.com/watch?v=3d6DsjIBzJ4"},{label:"Organic Chem Tutor — Taylor & Maclaurin",url:"https://www.youtube.com/watch?v=LDBnS4c7YbA"}]},{name:"Indeterminate forms 0/0 and ∞/∞ — L'Hôpital's Rule",day:5,tip:"Always verify the form is truly indeterminate before differentiating.",videos:[{label:"Organic Chem Tutor — L'Hôpital's Rule",url:"https://www.youtube.com/watch?v=thEnl_gCjXA"}]},{name:"Other indeterminate forms: 0·∞, ∞−∞, 1^∞, 0⁰, ∞⁰",day:6,tip:"Convert each to 0/0 or ∞/∞ first, then apply the rule.",videos:[{label:"Organic Chem Tutor — L'Hôpital's Rule",url:"https://www.youtube.com/watch?v=thEnl_gCjXA"}]},{name:"Maxima & Minima — first & second derivative tests",day:7,tip:"Draw sign charts for f′(x) — fast and visual in exams.",videos:[{label:"Organic Chem Tutor — Local & Absolute Extrema",url:"https://www.youtube.com/watch?v=nzlSTIFQJD0"}]},{name:"Revision + mixed problem set (Unit 1)",day:8,tip:"Time yourself: 30-min problems, 30-min review of mistakes.",videos:[]}]},{id:'u2',title:'Integral Calculus',color:'teal',num:2,unitVideos:[{label:"Organic Chem Tutor — Calculus 2 playlist",url:"https://www.youtube.com/playlist?list=PL0o_zxa4K1BVoTG0LXKpZHp0Y1yBmXCpw"},{label:"Professor Leonard — Calculus 2 full course",url:"https://www.youtube.com/playlist?list=PLF797E961509B4EB5"}],topics:[{name:"Evolutes — definition and derivation from parametric curves",day:9,tip:"Understand evolutes as loci of centres of curvature; sketch examples.",videos:[{label:"Michel van Biezen — curvature & evolutes",url:"https://www.youtube.com/watch?v=vH0tDFkTrIU"}]},{name:"Involutes and curvature of standard curves",day:10,tip:"The unrolling-string picture makes the involute formula obvious.",videos:[{label:"Michel van Biezen — involutes",url:"https://www.youtube.com/watch?v=vH0tDFkTrIU"}]},{name:"Definite integrals — properties and King's property",day:11,tip:"Drill the King's property ∫f(a+b−x)dx = ∫f(x)dx — shortens many problems.",videos:[{label:"Organic Chem Tutor — Definite Integrals",url:"https://www.youtube.com/watch?v=bZ8YAHDTFJ8"}]},{name:"Improper integrals — types I & II, convergence tests",day:12,tip:"Use comparison test first; only compute limits when comparison is unclear.",videos:[{label:"Organic Chem Tutor — Improper Integrals",url:"https://www.youtube.com/watch?v=lyNJOlJQEro"},{label:"Professor Leonard — Improper Integrals",url:"https://www.youtube.com/watch?v=zp2BEE9KF0c"}]},{name:"Beta function — definition, symmetry, relation to Gamma",day:13,tip:"B(m,n) = Γ(m)Γ(n)/Γ(m+n) is the central identity to know.",videos:[{label:"NPTEL — Beta & Gamma Functions",url:"https://www.youtube.com/watch?v=hCJEBg1n1oM"}]},{name:"Gamma function — properties and Γ(n+1) = nΓ(n)",day:14,tip:"Derive Γ(1/2) = √π at least once — it appears in Beta too.",videos:[{label:"NPTEL — Beta & Gamma Functions",url:"https://www.youtube.com/watch?v=hCJEBg1n1oM"},{label:"Organic Chem Tutor — Gamma Function",url:"https://www.youtube.com/watch?v=SduCO-r_TOA"}]},{name:"Surface areas & volumes of revolution (disk & shell)",day:15,tip:"Always sketch the region first; choose your axis of integration carefully.",videos:[{label:"Organic Chem Tutor — Volumes of Revolution",url:"https://www.youtube.com/watch?v=YSiAjNDaVLM"},{label:"Professor Leonard — Surface Area of Revolution",url:"https://www.youtube.com/watch?v=9j_FkMnEobo"}]},{name:"Revision + mixed problem set (Unit 2)",day:16,tip:"Rework Beta-Gamma combo problems — they're common exam picks.",videos:[]}]},{id:'u3',title:'Matrices',color:'amber',num:3,unitVideos:[{label:"3Blue1Brown — Essence of Linear Algebra ch. 1–8",url:"https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab"},{label:"MIT OCW — Gilbert Strang Linear Algebra",url:"https://www.youtube.com/playlist?list=PL49CF3715CB9EF31D"}],topics:[{name:"Matrix operations: addition, scalar & matrix multiplication",day:17,tip:"Confirm non-commutativity with a quick 2×2 counterexample.",videos:[{label:"3Blue1Brown — Linear transformations & matrices (ch. 3)",url:"https://www.youtube.com/watch?v=kYB8IZa5AuE"}]},{name:"Linear systems — consistency and geometric interpretation",day:18,tip:"Visualise each equation as a hyperplane; solutions are their intersections.",videos:[{label:"3Blue1Brown — Inverse matrices, column space (ch. 7)",url:"https://www.youtube.com/watch?v=uQhTuRlWMxw"}]},{name:"Rank of a matrix via row-echelon form",day:19,tip:"Rank = number of non-zero rows in REF. Practice on 3×4 and 4×3 matrices.",videos:[{label:"Gilbert Strang — Independence, Basis, Dimension (Lec 9)",url:"https://www.youtube.com/watch?v=yjBerM9jjpM"}]},{name:"Determinants — cofactor expansion and properties",day:20,tip:"Expand along the row/column with the most zeros to save computation.",videos:[{label:"3Blue1Brown — The determinant (ch. 6)",url:"https://www.youtube.com/watch?v=Ip3X9LOh2dk"}]},{name:"Cramer's Rule and its practical limitations",day:21,tip:"Elegant but slow for n > 3; know when Gauss Elimination is faster.",videos:[{label:"3Blue1Brown — Cramer's Rule, geometrically (ch. 12)",url:"https://www.youtube.com/watch?v=jBsC34PxzoM"},{label:"Organic Chem Tutor — Cramer's Rule",url:"https://www.youtube.com/watch?v=HbsY_c5bHGI"}]},{name:"Inverse via adjoint and via row operations",day:22,tip:"The [A|I] → [I|A⁻¹] row-operation method is used in practice.",videos:[{label:"Organic Chem Tutor — Inverse of a 3×3 matrix",url:"https://www.youtube.com/watch?v=iUQR0enP7RQ"}]},{name:"Gauss Elimination & Gauss-Jordan Elimination",day:23,tip:"Write out each row operation step explicitly until the method is automatic.",videos:[{label:"Organic Chem Tutor — Gaussian Elimination",url:"https://www.youtube.com/watch?v=eDb6iugi6Uk"}]},{name:"Revision + mixed problem set (Unit 3)",day:24,tip:"Solve one 3×3 system three ways: Gauss, Cramer's, inverse — compare effort.",videos:[]}]},{id:'u4',title:'Vector Spaces',color:'coral',num:4,unitVideos:[{label:"3Blue1Brown — Abstract vector spaces (ch. 15)",url:"https://www.youtube.com/watch?v=TgKwz5Ikpc8"},{label:"Gilbert Strang MIT — Vector spaces & subspaces",url:"https://www.youtube.com/watch?v=8o5Cmfpeo6g"}],topics:[{name:"Vector space axioms — definition and verification",day:25,tip:"Always check all 8 axioms when asked to 'verify V is a vector space'.",videos:[{label:"3Blue1Brown — Abstract vector spaces",url:"https://www.youtube.com/watch?v=TgKwz5Ikpc8"},{label:"Dr Trefor Bazett — Vector space definition",url:"https://www.youtube.com/watch?v=ozwodzD5bte"}]},{name:"Linear dependence & independence of vectors",day:26,tip:"Set up the homogeneous equation; dependence ↔ non-trivial solution.",videos:[{label:"3Blue1Brown — Span and linear independence (ch. 2)",url:"https://www.youtube.com/watch?v=k7RM-ot2NWY"},{label:"Organic Chem Tutor — Linear independence",url:"https://www.youtube.com/watch?v=Psc-LwkOXA8"}]},{name:"Basis of a vector space — spanning and independence",day:27,tip:"A basis is both the smallest spanning set and the largest independent set.",videos:[{label:"Gilbert Strang MIT — Independence, basis & dimension",url:"https://www.youtube.com/watch?v=yjBerM9jjpM"}]},{name:"Dimension and coordinate representation",day:28,tip:"Dimension = size of any basis. Prove all bases have the same size once.",videos:[{label:"Gilbert Strang MIT — Independence, basis & dimension",url:"https://www.youtube.com/watch?v=yjBerM9jjpM"}]},{name:"Linear transformations — definition and examples",day:29,tip:"Two conditions: T(u+v)=T(u)+T(v) and T(αv)=αT(v). Check both explicitly.",videos:[{label:"3Blue1Brown — Linear transformations & matrices (ch. 3)",url:"https://www.youtube.com/watch?v=kYB8IZa5AuE"}]},{name:"Range (image) and kernel (null space) of a linear map",day:30,tip:"Range = column space; kernel = null space. Row-reduce to find both.",videos:[{label:"Gilbert Strang MIT — Null space & column space",url:"https://www.youtube.com/watch?v=8o5Cmfpeo6g"},{label:"3Blue1Brown — Inverse matrices, null space (ch. 7)",url:"https://www.youtube.com/watch?v=uQhTuRlWMxw"}]},{name:"Rank-Nullity Theorem — statement and proof",day:31,tip:"rank(T) + nullity(T) = dim(domain). Verify with a concrete 3×4 matrix.",videos:[{label:"Dr Trefor Bazett — Rank-Nullity Theorem",url:"https://www.youtube.com/watch?v=lCGiEFuM_6A"}]},{name:"Matrix of a linear map + revision (Unit 4)",day:32,tip:"Build [T] by computing T on each basis vector and writing results as columns.",videos:[{label:"3Blue1Brown — Change of basis (ch. 13)",url:"https://www.youtube.com/watch?v=P2LTAUO1TdA"}]}]},{id:'u5',title:'Eigenvalues & Inner Product Spaces',color:'blue',num:5,unitVideos:[{label:"3Blue1Brown — Eigenvectors & eigenvalues (ch. 14)",url:"https://www.youtube.com/watch?v=PFDu9oVAE-g"},{label:"Gilbert Strang MIT — Eigenvalues & eigenvectors",url:"https://www.youtube.com/watch?v=DzqE7tj7eIM"}],topics:[{name:"Eigenvalues & eigenvectors — characteristic polynomial",day:33,tip:"det(A − λI) = 0 gives eigenvalues; substitute back to find eigenvectors.",videos:[{label:"3Blue1Brown — Eigenvectors & eigenvalues (visual)",url:"https://www.youtube.com/watch?v=PFDu9oVAE-g"},{label:"Organic Chem Tutor — Eigenvalues & eigenvectors",url:"https://www.youtube.com/watch?v=IdsV0RaC9jM"}]},{name:"Symmetric, skew-symmetric, and orthogonal matrices",day:34,tip:"For symmetric A: real eigenvalues + orthogonal eigenvectors. Know why.",videos:[{label:"Gilbert Strang MIT — Symmetric matrices & positivity",url:"https://www.youtube.com/watch?v=ZTNniGvY5IQ"}]},{name:"Diagonalization — condition: n independent eigenvectors",day:35,tip:"A = PDP⁻¹. Columns of P are eigenvectors; diagonal of D are eigenvalues.",videos:[{label:"Organic Chem Tutor — Diagonalization of a matrix",url:"https://www.youtube.com/watch?v=U8R54zOTVLw"},{label:"Gilbert Strang MIT — Diagonalization",url:"https://www.youtube.com/watch?v=DzqE7tj7eIM"}]},{name:"Applications of diagonalization — matrix powers Aⁿ",day:36,tip:"Aⁿ = PDⁿP⁻¹ is the key application; Dⁿ is trivial since D is diagonal.",videos:[{label:"Professor Leonard — Matrix Diagonalization applications",url:"https://www.youtube.com/watch?v=X4_zOwzFmJE"}]},{name:"Inner product spaces — axioms, norm, Cauchy-Schwarz",day:37,tip:"Generalise the dot product; verify positivity, symmetry, linearity axioms.",videos:[{label:"Dr Trefor Bazett — Inner product spaces",url:"https://www.youtube.com/watch?v=gXbThCXjZFM"},{label:"Gilbert Strang MIT — Orthogonal vectors & subspaces",url:"https://www.youtube.com/watch?v=aAx_mIHxQdU"}]},{name:"Gram-Schmidt orthogonalization — algorithm step by step",day:38,tip:"eₖ = vₖ − Σproj. Normalise at the end for an orthonormal basis.",videos:[{label:"Organic Chem Tutor — Gram-Schmidt process",url:"https://www.youtube.com/watch?v=rHonltF77zI"},{label:"Gilbert Strang MIT — Projections & Gram-Schmidt",url:"https://www.youtube.com/watch?v=uNsCkP9mgRk"}]},{name:"Full syllabus revision — Units 1–3",day:39,tip:"Use past papers; cover at least 2 questions per unit. Flag weak spots.",videos:[]},{name:"Full syllabus revision — Units 4–5 + exam strategy",day:40,tip:"Final session: solve a timed mock paper under exam conditions — no notes.",videos:[]}]}];
+
+const STORE_KEY='math_tt2';
+let state={};
+try{state=JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state))}catch(e){}}
+function totalTopics(){return UNITS.reduce((a,u)=>a+u.topics.length,0)}
+function doneCount(){return UNITS.reduce((a,u)=>a+u.topics.filter(t=>state[u.id+'_'+t.day]).length,0)}
+function updateStats(){
+  const total=totalTopics(),done=doneCount(),pct=total?Math.round(done/total*100):0;
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-left').textContent=total-done;
+  document.getElementById('top-pct').textContent=pct+'%';
+  document.getElementById('bar-fill').style.width=pct+'%';
+  UNITS.forEach(u=>{
+    const t=u.topics.length,d=u.topics.filter(x=>state[u.id+'_'+x.day]).length;
+    const fill=document.getElementById('mf-'+u.id);
+    const prog=document.getElementById('up-'+u.id);
+    if(fill)fill.style.width=(t?Math.round(d/t*100):0)+'%';
+    if(prog){prog.textContent=d+'/'+t;prog.className='unit-prog'+(d===t?' full':'')}
+  });
+}
+function toggleTopic(key){
+  state[key]=!state[key];save();
+  const btn=document.getElementById('cb-'+key),nm=document.getElementById('tn-'+key),row=document.getElementById('row-'+key);
+  if(btn)btn.classList.toggle('done',state[key]);
+  if(nm)nm.classList.toggle('done',state[key]);
+  if(row)row.classList.toggle('done-row',state[key]);
+  updateStats();
+}
+function toggleUnit(id){document.getElementById('card-'+id).classList.toggle('open')}
+function resetProgress(){if(!confirm('Reset all progress? This cannot be undone.'))return;state={};save();renderAll()}
+function ckIcon(){return`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 5,9 10,3"/></svg>`}
+function chvIcon(){return`<svg class="chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="5,8 10,13 15,8"/></svg>`}
+function renderAll(){
+  const container=document.getElementById('units');
+  container.innerHTML='';
+  UNITS.forEach(u=>{
+    const total=u.topics.length,done=u.topics.filter(t=>state[u.id+'_'+t.day]).length,pct=total?Math.round(done/total*100):0;
+    const shelfHtml=u.unitVideos.map(v=>`<a class="shelf-link" href="${v.url}" target="_blank" rel="noopener"><span class="yt-dot"></span>${v.label}</a>`).join('');
+    const topicsHtml=u.topics.map(t=>{
+      const key=u.id+'_'+t.day,isDone=!!state[key];
+      const vidHtml=t.videos.map(v=>`<a class="vid-link" href="${v.url}" target="_blank" rel="noopener"><span class="yt-dot"></span>${v.label}</a>`).join('');
+      return`<div class="topic-row${isDone?' done-row':''}" id="row-${key}">
+        <button class="check-btn${isDone?' done':''}" id="cb-${key}" onclick="toggleTopic('${key}')" aria-label="Mark done">${ckIcon()}</button>
+        <div class="topic-content">
+          <div class="topic-top">
+            <span class="topic-name${isDone?' done':''}" id="tn-${key}">${t.name}</span>
+            <span class="day-pill">Day ${t.day}</span>
+          </div>
+          <div class="topic-tip">💡 ${t.tip}</div>
+          ${vidHtml?`<div class="vid-links">${vidHtml}</div>`:''}
+        </div></div>`;
+    }).join('');
+    const card=document.createElement('div');
+    card.className=`unit-card c-${u.color}`;card.id='card-'+u.id;
+    card.innerHTML=`
+      <div class="unit-hd" onclick="toggleUnit('${u.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')toggleUnit('${u.id}')">
+        <div class="unit-left">
+          <span class="unit-badge">Unit ${u.num}</span>
+          <div class="unit-info">
+            <div class="unit-title">${u.title}</div>
+            <div class="unit-sub">Days ${u.topics[0].day}–${u.topics[u.topics.length-1].day} · ${total*2} hrs</div>
+          </div>
+        </div>
+        <div class="unit-right">
+          <span class="unit-prog${done===total?' full':''}" id="up-${u.id}">${done}/${total}</span>
+          <div class="unit-mini-bar"><div class="unit-mini-fill" id="mf-${u.id}" style="width:${pct}%"></div></div>
+          ${chvIcon()}
+        </div>
+      </div>
+      <div class="unit-body">
+        ${shelfHtml?`<div class="shelf"><div class="shelf-label">📌 Recommended for this unit</div><div class="shelf-links">${shelfHtml}</div></div>`:''}
+        <div class="topics">${topicsHtml}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+  updateStats();
+}
+renderAll();
+</script>
+</body>
+</html>
